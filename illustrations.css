@@ -185,6 +185,7 @@
 .sc8 { animation: cf8 5.5s ease-in-out infinite  .4s;    top:36%; left:0; }
 
 @media (max-width: 1040px) { .skill-chip { display: none; } }
+@media (max-width: 580px)  { .skill-chip { display: flex; } }
 @media (prefers-reduced-motion: reduce) {
   .hero-terminal { animation: none !important; }
   .skill-chip { animation: none !important; }
@@ -282,7 +283,7 @@
   position: absolute;
   width: 380px; height: 380px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(28,173,228,.09) 0%, transparent 68%);
+  background: radial-gradient(circle, rgba(28,173,228,.18) 0%, transparent 68%);
   right: -80px; top: -100px;
   pointer-events: none;
   animation: orbDrift 14s ease-in-out infinite;
@@ -292,7 +293,7 @@
   position: absolute;
   width: 220px; height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(28,173,228,.05) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(28,173,228,.12) 0%, transparent 70%);
   right: 140px; bottom: -60px;
   pointer-events: none;
   animation: orbDrift 18s ease-in-out infinite -6s;
@@ -354,8 +355,84 @@
   user-select: none;
 }
 .ctag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+
+/* Override ctag for dark hero background */
+.page-hero .ctag {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(28,173,228,.35);
+  color: rgba(255,255,255,.8);
+}
+.page-hero .ctag-dot { background: #1CADE4; }
+
 @media (prefers-reduced-motion: reduce) {
   .cts-inner { animation: none; }
+}
+
+/* ─────────────────────────────────────────
+   PAGE-HERO SVG ILLUSTRATION ANIMATIONS
+───────────────────────────────────────── */
+@keyframes phPulse {
+  0%,100% { transform: scale(1); }
+  50%      { transform: scale(1.14); }
+}
+.ph-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: phPulse 3.2s ease-in-out infinite;
+}
+
+@keyframes phFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(3px,-6px)} }
+@keyframes phFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-4px,-5px)} }
+@keyframes phFloat3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(4px,5px)} }
+@keyframes phFloat4 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-3px,6px)} }
+@keyframes phFloat5 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(5px,-3px)} }
+
+.ph-float1 { animation: phFloat1 5.1s ease-in-out infinite; }
+.ph-float2 { animation: phFloat2 6.3s ease-in-out infinite .8s; }
+.ph-float3 { animation: phFloat3 5.7s ease-in-out infinite 1.4s; }
+.ph-float4 { animation: phFloat4 6.8s ease-in-out infinite .3s; }
+.ph-float5 { animation: phFloat5 5.4s ease-in-out infinite 2.1s; }
+
+@keyframes phSpark {
+  0%,100% { opacity: .15; transform: scale(.7); }
+  50%      { opacity: .9;  transform: scale(1.5); }
+}
+.ph-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: phSpark 2.6s ease-in-out infinite;
+}
+
+@keyframes phGearCw  { from { transform: rotate(0deg);    } to { transform: rotate(360deg);   } }
+@keyframes phGearCcw { from { transform: rotate(0deg);    } to { transform: rotate(-360deg);  } }
+
+.ph-gear-cw  {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: phGearCw  20s linear infinite;
+}
+.ph-gear-ccw {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: phGearCcw 13s linear infinite;
+}
+
+@keyframes phNodePulse {
+  0%,100% { opacity: .35; }
+  50%      { opacity: 1;   }
+}
+.ph-node-seq circle:nth-child(1) { animation: phNodePulse 3.5s ease-in-out infinite 0s;    }
+.ph-node-seq circle:nth-child(2) { animation: phNodePulse 3.5s ease-in-out infinite .5s;   }
+.ph-node-seq circle:nth-child(3) { animation: phNodePulse 3.5s ease-in-out infinite 1s;    }
+.ph-node-seq circle:nth-child(4) { animation: phNodePulse 3.5s ease-in-out infinite 1.5s;  }
+.ph-node-seq circle:nth-child(5) { animation: phNodePulse 3.5s ease-in-out infinite 2s;    }
+.ph-node-seq circle:nth-child(6) { animation: phNodePulse 3.5s ease-in-out infinite 2.5s;  }
+.ph-node-seq circle:nth-child(7) { animation: phNodePulse 3.5s ease-in-out infinite 3s;    }
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-pulse, .ph-float1, .ph-float2, .ph-float3, .ph-float4, .ph-float5,
+  .ph-spark, .ph-gear-cw, .ph-gear-ccw,
+  .ph-node-seq circle { animation: none !important; }
 }
 
 /* ─────────────────────────────────────────
