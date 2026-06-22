@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Verification — Computer Complex</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <meta name="robots" content="noindex">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #1CADE4;
+      --blue-dk: #1590c2;
+      --green:   #16a34a;
+      --green-bg:#f0fdf4;
+      --green-br:#bbf7d0;
+      --red:     #dc2626;
+      --red-bg:  #fef2f2;
+      --red-br:  #fecaca;
+      --amber:   #d97706;
+      --amber-bg:#fffbeb;
+      --amber-br:#fde68a;
+      --gray:    #6b7280;
+      --gray-bg: #f9fafb;
+      --gray-br: #e5e7eb;
+      --text:    #111827;
+      --muted:   #6b7280;
+      --radius:  12px;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f3f4f6;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      width: 100%;
+      max-width: 560px;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .site-header img {
+      height: 60px;
+      width: auto;
+      display: block;
+      margin: 0 auto 12px;
+    }
+    .back-link {
+      font-size: .85rem;
+      color: var(--muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color .15s;
+    }
+    .back-link:hover { color: var(--blue); }
+
+    /* ── Search card ── */
+    .search-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+      padding: 28px 24px 24px;
+      width: 100%;
+      max-width: 560px;
+      margin-bottom: 20px;
+    }
+    .search-card h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1.5px solid var(--gray-br);
+      border-radius: 8px;
+      font-size: .97rem;
+      font-family: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
+      min-width: 0;
+    }
+    .input-row input:focus { border-color: var(--blue); }
+    .btn-verify {
+      padding: 11px 20px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .97rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-verify:hover:not(:disabled) { background: var(--blue-dk); }
+    .btn-verify:disabled { opacity: .55; cursor: not-allowed; }
+    .hint {
+      margin-top: 10px;
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Spinner ── */
+    .spinner-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid var(--gray-br);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result card ── */
+    .result-card {
+      width: 100%;
+      max-width: 560px;
+      border-radius: var(--radius);
+      padding: 28px 24px 24px;
+      border-width: 1.5px;
+      border-style: solid;
+    }
+    .result-card.verified {
+      background: var(--green-bg);
+      border-color: var(--green-br);
+    }
+    .result-card.revoked {
+      background: var(--red-bg);
+      border-color: var(--red-br);
+    }
+    .result-card.not-found {
+      background: var(--amber-bg);
+      border-color: var(--amber-br);
+    }
+    .result-card.error {
+      background: var(--gray-bg);
+      border-color: var(--gray-br);
+    }
+
+    /* Icon */
+    .result-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .verified  .result-icon { background: #dcfce7; color: var(--green); }
+    .revoked   .result-icon { background: #fee2e2; color: var(--red); }
+    .not-found .result-icon { background: #fef3c7; color: var(--amber); }
+    .error     .result-icon { background: var(--gray-br); color: var(--gray); }
+
+    .result-card h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .verified  h2 { color: var(--green); }
+    .revoked   h2 { color: var(--red); }
+    .not-found h2 { color: var(--amber); }
+    .error     h2 { color: var(--gray); }
+
+    .result-sub {
+      font-size: .92rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 16px;
+      margin-bottom: 20px;
+    }
+    .info-label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding-top: 2px;
+      white-space: nowrap;
+    }
+    .info-value {
+      font-size: .97rem;
+      color: var(--text);
+      font-weight: 500;
+      word-break: break-word;
+    }
+    .grade-badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: var(--green);
+      border: 1px solid var(--green-br);
+      border-radius: 6px;
+      padding: 1px 10px;
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    /* Divider */
+    .card-divider {
+      border: none;
+      border-top: 1px solid rgba(0,0,0,.08);
+      margin: 16px 0;
+    }
+
+    /* ISO badge */
+    .iso-badge {
+      font-size: .78rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .iso-badge::before {
+      content: '✦';
+      font-size: .65rem;
+      color: var(--blue);
+    }
+
+    /* Contact */
+    .contact-line {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-top: 14px;
+      line-height: 1.6;
+    }
+    .contact-line a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+    .contact-line a:hover { text-decoration: underline; }
+
+    /* Body text */
+    .result-body {
+      font-size: .93rem;
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: auto;
+      padding-top: 36px;
+      font-size: .78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── Utilities ── */
+    .hidden { display: none !important; }
+
+    @media (max-width: 400px) {
+      .input-row { flex-direction: column; }
+      .btn-verify { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <img src="CC logo.png" alt="Computer Complex">
+    <a href="index.html" class="back-link">&#8592; Back to site</a>
+  </header>
+
+  <!-- Search -->
+  <div class="search-card">
+    <h1>Verify a Certificate</h1>
+    <div class="input-row">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Enter Registration No. or Certificate No."
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+      >
+      <button class="btn-verify" id="verifyBtn" onclick="runVerify()">Verify</button>
+    </div>
+    <p class="hint">
+      Registration numbers start with CC &nbsp;(e.g.&nbsp;CC2511001).&nbsp;
+      Certificate numbers are numeric &nbsp;(e.g.&nbsp;260505).
+    </p>
+  </div>
+
+  <!-- Spinner -->
+  <div class="spinner-wrap hidden" id="spinner">
+    <div class="spinner"></div>
+    <span>Verifying&hellip;</span>
+  </div>
+
+  <!-- Result area -->
+  <div id="result"></div>
+
+  <footer>
+    &copy; 2026 Computer Complex, Phagwara. ISO&nbsp;9001:2015 certified institute.
+  </footer>
+
+<script>
+  // Replace with your deployed Apps Script web app URL
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxanLbwubWA8tndtYgrCIEJhPrS4Pp5D-aLIn12XE-1-gZ5RSwei7BChGsE-lK8NldUjg/exec';
+
+  const input  = document.getElementById('searchInput');
+  const btn    = document.getElementById('verifyBtn');
+  const spinner = document.getElementById('spinner');
+  const result  = document.getElementById('result');
+
+  /* ── Auto-lookup from QR / URL params ── */
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const regno  = params.get('regno');
+    const certno = params.get('certno');
+    if (regno) {
+      input.value = regno.trim();
+      runVerify();
+    } else if (certno) {
+      input.value = certno.trim();
+      runVerify();
+    }
+  });
+
+  /* Allow Enter key in input */
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') runVerify(); });
+
+  /* ── Main verify function ── */
+  async function runVerify() {
+    const raw = input.value.trim();
+    if (!raw) {
+      input.focus();
+      return;
+    }
+
+    setLoading(true);
+    clearResult();
+
+    /* Decide which param to send */
+    const isRegNo = /^CC/i.test(raw);
+    const paramKey = isRegNo ? 'regno' : 'certno';
+    const url = `${APPS_SCRIPT_URL}?${paramKey}=${encodeURIComponent(raw)}`;
+
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+      renderResult(data);
+    } catch (err) {
+      renderError();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /* ── Render helpers ── */
+  function setLoading(on) {
+    btn.disabled = on;
+    spinner.classList.toggle('hidden', !on);
+  }
+
+  function clearResult() {
+    result.innerHTML = '';
+  }
+
+  function esc(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderResult(data) {
+    if (!data.found) {
+      result.innerHTML = `
+        <div class="result-card not-found">
+          <div class="result-icon">!</div>
+          <h2>Certificate Not Found</h2>
+          <p class="result-body">
+            No certificate matching this ID was found in our records.
+            Please check the ID printed on your certificate and try again.
+          </p>
+          <p class="contact-line">
+            <a href="tel:+919501117595">+91 95011 17595</a> &nbsp;|&nbsp;
+            <a href="mailto:info@computercomplex.in">info@computercomplex.in</a>
+          </p>
+        </div>`;
+      return;
+    }
+
+    if (data.status === 'revoked') {
+      result.innerHTML = `
+        <div class="result-card revoked">
+          <div class="result-icon">&#10007;</div>
+          <h2>Certificate Revoked</h2>
+          <p class="result-body">
+            This certificate (Reg.&nbsp;No.&nbsp;<strong>${esc(data.registrationNo)}</strong>)
+            has been revoked and is no longer valid.
+            Please contact Computer Complex for more information.
+          </p>
+          <p class="contact-line">
+            <a href="tel:+919501117595">+91 95011 17595</a> &nbsp;|&nbsp;
+            <a href="mailto:info@computercomplex.in">info@computercomplex.in</a>
+          </p>
+        </div>`;
+      return;
+    }
+
+    /* Active / verified */
+    result.innerHTML = `
+      <div class="result-card verified">
+        <div class="result-icon">&#10003;</div>
+        <h2>Certificate Verified</h2>
+        <p class="result-sub">
+          This is a genuine certificate issued by Computer Complex, Phagwara.
+        </p>
+        <div class="info-grid">
+          <span class="info-label">Student</span>
+          <span class="info-value">${esc(data.studentName)}</span>
+
+          <span class="info-label">Registration</span>
+          <span class="info-value">${esc(data.registrationNo)}</span>
+
+          <span class="info-label">Certificate</span>
+          <span class="info-value">${esc(data.certificateNo)}</span>
+
+          <span class="info-label">Course</span>
+          <span class="info-value">${esc(data.course)}</span>
+
+          <span class="info-label">Issue date</span>
+          <span class="info-value">${esc(data.issueDate)}</span>
+
+          <span class="info-label">Grade</span>
+          <span class="info-value"><span class="grade-badge">${esc(data.grade)}</span></span>
+        </div>
+        <hr class="card-divider">
+        <div class="iso-badge">ISO 9001:2015 Certified Institute</div>
+        <p class="contact-line">
+          For queries contact
+          <a href="mailto:info@computercomplex.in">info@computercomplex.in</a>
+          or <a href="tel:+919501117595">+91 95011 17595</a>
+        </p>
+      </div>`;
+  }
+
+  function renderError() {
+    result.innerHTML = `
+      <div class="result-card error">
+        <div class="result-icon">&#9888;</div>
+        <h2>Verification Unavailable</h2>
+        <p class="result-body">
+          Could not connect to the verification server.
+          Please check your internet connection and try again.
+        </p>
+      </div>`;
+  }
+</script>
+</body>
+</html>
