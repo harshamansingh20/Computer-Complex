@@ -332,8 +332,7 @@
   </footer>
 
 <script>
-  // Replace with your deployed Apps Script web app URL
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxanLbwubWA8tndtYgrCIEJhPrS4Pp5D-aLIn12XE-1-gZ5RSwei7BChGsE-lK8NldUjg/exec';
+  const VERIFY_ENDPOINT = '/api/verify';
 
   const input  = document.getElementById('searchInput');
   const btn    = document.getElementById('verifyBtn');
@@ -371,7 +370,7 @@
     /* Decide which param to send */
     const isRegNo = /^CC/i.test(raw);
     const paramKey = isRegNo ? 'regno' : 'certno';
-    const url = `${APPS_SCRIPT_URL}?${paramKey}=${encodeURIComponent(raw)}`;
+    const url = `${VERIFY_ENDPOINT}?${paramKey}=${encodeURIComponent(raw)}`;
 
     try {
       const res  = await fetch(url);
