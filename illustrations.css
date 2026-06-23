@@ -558,6 +558,10 @@
 
 @media (max-width: 720px) {
   .step-track { display: none; }
+  .it-steps-wrap { flex-direction: column !important; }
+  .it-step { border-right: none !important; border-bottom: 1px solid var(--border); text-align: left; }
+  .it-step:last-child { border-bottom: none; }
+  .step-num-badge { margin: 0 0 12px; }
 }
 
 /* ─────────────────────────────────────────
