@@ -1,0 +1,18 @@
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+
+# Environment variables — never commit these
+.env
+.env.*
+.env.local
+
+# Claude Code project memory
+.claude/
+
+# PHP dependencies
+vendor/
+
+# Node (just in case)
+node_modules/
